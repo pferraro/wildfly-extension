@@ -12,6 +12,7 @@
     </parent>
 
     <artifactId>tracker-testsuite</artifactId>
+    <name>tracker test suite</name>
 
     <build>
         <plugins>

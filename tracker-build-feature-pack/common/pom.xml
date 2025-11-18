@@ -14,8 +14,9 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>acme-feature-pack-common</artifactId>
+    <artifactId>tracker-feature-pack-common</artifactId>
     <packaging>pom</packaging>
+    <name>tracker common feature-pack</name>
 
     <dependencies>
         <!-- module and copy artifact dependencies -->

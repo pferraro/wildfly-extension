@@ -11,9 +11,7 @@
     <artifactId>tracker-extension</artifactId>
     <packaging>jar</packaging>
 
-    <name>WildFly subsystem project</name>
-
-    <description>This is your WildFly subsystem</description>
+    <name>tracker extension</name>
 
     <build>
         <!-- Maven will append the version to the finalName (which is the name

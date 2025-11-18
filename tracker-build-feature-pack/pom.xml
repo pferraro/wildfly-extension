@@ -11,8 +11,7 @@
     <artifactId>tracker-build-feature-pack</artifactId>
     <packaging>pom</packaging>
 
-    <name>Acme Build Feature Pack Parent</name>
-    <description>Parent POM for building the Acme Galleon feature pack</description>
+    <name>tracker build feature-pack </name>
     <modules>
         <module>common</module>
         <module>tracker-feature-pack</module>

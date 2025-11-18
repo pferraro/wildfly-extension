@@ -11,9 +11,7 @@
 
     <artifactId>tracker-feature-pack</artifactId>
     <packaging>pom</packaging>
-
-    <name>Acme Galleon Feature Pack</name>
-    <description>Galleon feature pack that installs the Acme subsystem extension</description>
+    <name>tracker feature-pack</name>
 
     <properties>
         <common.resources.directory>${basedir}/../common/src/main/resources</common.resources.directory>
