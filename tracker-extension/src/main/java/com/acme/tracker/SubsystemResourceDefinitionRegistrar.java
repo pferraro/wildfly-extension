@@ -26,6 +26,7 @@ import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.as.server.DeploymentProcessorTarget;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.ModelType;
+import org.wildfly.service.descriptor.NullaryServiceDescriptor;
 import org.wildfly.service.descriptor.UnaryServiceDescriptor;
 import org.wildfly.subsystem.resource.ManagementResourceRegistrar;
 import org.wildfly.subsystem.resource.ManagementResourceRegistrationContext;
@@ -39,6 +40,7 @@ import org.wildfly.subsystem.service.ServiceDependency;
 import org.wildfly.subsystem.service.ServiceInstaller;
 
 import com.acme.tracker.deployment.SubsystemDeploymentProcessor;
+import org.wildfly.subsystem.service.capability.CapabilityServiceInstaller;
 
 /**
  * Registers the resource definition of this subsystem.
@@ -48,7 +50,8 @@ public class SubsystemResourceDefinitionRegistrar implements org.wildfly.subsyst
 
     static final SubsystemResourceRegistration REGISTRATION = SubsystemResourceRegistration.of("tracker");
 
-    static final RuntimeCapability<Void> TRACKER_CAPABILITY = RuntimeCapability.Builder.of("com.acme.tracker").build();
+    public static NullaryServiceDescriptor<TrackerService> SERVICE_DESCRIPTOR = NullaryServiceDescriptor.of("com.acme.tracker", TrackerService.class);
+    public static final RuntimeCapability<Void> TRACKER_CAPABILITY = RuntimeCapability.Builder.of(SERVICE_DESCRIPTOR).build();
 
     static final UnaryServiceDescriptor<ManagedScheduledExecutorService> EXECUTOR_SERVICE = UnaryServiceDescriptor.of("org.wildfly.ee.concurrent.scheduled-executor",
             ManagedScheduledExecutorService.class);
@@ -104,7 +107,7 @@ public class SubsystemResourceDefinitionRegistrar implements org.wildfly.subsyst
         ServiceDependency<ManagedScheduledExecutorService> executor = EXECUTOR.resolve(context, model);
         Supplier<TrackerService> trackerService = () -> new TrackerService(executor.get(), tick);
 
-        return ServiceInstaller.builder(trackerService)
+        return CapabilityServiceInstaller.builder(TRACKER_CAPABILITY, trackerService)
                 .requires(executor)
                 .startWhen(AVAILABLE)
                 .onStop(TrackerService::stop)

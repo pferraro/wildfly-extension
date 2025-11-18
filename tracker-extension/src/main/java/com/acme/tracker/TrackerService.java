@@ -4,6 +4,7 @@ import static com.acme.tracker._private.SubsystemLogger.LOGGER;
 
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 import jakarta.enterprise.concurrent.ManagedExecutorService;
@@ -20,12 +21,14 @@ public class TrackerService  {
 
     private final ScheduledFuture<?> future;
 
+    public final AtomicInteger DEPLOYMENTS = new AtomicInteger(0);
+
     public TrackerService(ManagedScheduledExecutorService executor, long tick) {
         LOGGER.checkTick(tick);
         future = executor.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                LOGGER.numberOfDeployments(0);
+                LOGGER.numberOfDeployments(DEPLOYMENTS.get());
             }
         }, tick, tick, TimeUnit.SECONDS);
     }
