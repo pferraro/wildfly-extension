@@ -64,7 +64,8 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
     public void testInstallIntoController() throws Exception {
         //Parse the subsystem xml and install into the controller
         String subsystemXml = """
-<subsystem xmlns="urn:com.acme:tracker:1.0" />""";
+<subsystem xmlns="urn:com.acme:tracker:1.0"
+    tick="4" />""";
         KernelServices services = super.createKernelServicesBuilder(this.initialization).setSubsystemXml(subsystemXml).build();
 
         //Read the whole model and make sure it looks as expected
@@ -80,7 +81,8 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
     public void testParseAndMarshalModel() throws Exception {
         //Parse the subsystem xml and install into the first controller
         String subsystemXml = """
-<subsystem xmlns="urn:com.acme:tracker:1.0" />""";
+<subsystem xmlns="urn:com.acme:tracker:1.0"
+     tick="4" />""";
         KernelServices servicesA = super.createKernelServicesBuilder(this.initialization).setSubsystemXml(subsystemXml).build();
         //Get the model and the persisted xml from the first controller
         ModelNode modelA = servicesA.readWholeModel();
@@ -104,8 +106,6 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
 <subsystem xmlns="urn:com.acme:tracker:1.0" />""";
         KernelServices services = super.createKernelServicesBuilder(this.initialization).setSubsystemXml(subsystemXml).build();
         //Checks that the subsystem was removed from the model
-        super.assertRemoveSubsystemResources(services);
-
-        //TODO Chek that any services that were installed were removed here
+        assertRemoveSubsystemResources(services);
     }
 }

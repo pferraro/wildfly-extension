@@ -1,5 +1,7 @@
 package com.acme.tracker;
 
+import static com.acme.tracker.SubsystemResourceDefinitionRegistrar.TICK;
+
 import java.util.List;
 
 import org.jboss.as.controller.persistence.xml.ResourceXMLParticleFactory;
@@ -33,9 +35,7 @@ public enum SubsystemSchema implements SubsystemResourceXMLSchema<SubsystemSchem
     @Override
     public SubsystemResourceRegistrationXMLElement getSubsystemXMLElement() {
         return this.factory.subsystemElement(SubsystemResourceDefinitionRegistrar.REGISTRATION)
-                //.addAttribute(SubsystemResourceDefinitionRegistrar.BAR)
-                // Add any element content for child resources
-                // .withContent(...)
+                .addAttributes(List.of(TICK))
                 .build();
     }
 }

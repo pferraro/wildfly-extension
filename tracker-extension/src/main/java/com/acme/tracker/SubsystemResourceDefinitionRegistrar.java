@@ -6,17 +6,24 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.ResourceDefinition;
+import org.jboss.as.controller.SimpleAttributeDefinition;
+import org.jboss.as.controller.SimpleAttributeDefinitionBuilder;
 import org.jboss.as.controller.SubsystemRegistration;
 import org.jboss.as.controller.SubsystemResourceRegistration;
 import org.jboss.as.controller.capability.RuntimeCapability;
+import org.jboss.as.controller.client.helpers.MeasurementUnit;
 import org.jboss.as.controller.descriptions.ParentResourceDescriptionResolver;
 import org.jboss.as.controller.descriptions.SubsystemResourceDescriptionResolver;
+import org.jboss.as.controller.operations.validation.LongRangeValidator;
+import org.jboss.as.controller.registry.AttributeAccess;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.as.server.DeploymentProcessorTarget;
 import org.jboss.dmr.ModelNode;
+import org.jboss.dmr.ModelType;
 import org.wildfly.service.Installer.StartWhen;
 import org.wildfly.service.descriptor.NullaryServiceDescriptor;
 import org.wildfly.subsystem.resource.ManagementResourceRegistrar;
@@ -40,13 +47,23 @@ public class SubsystemResourceDefinitionRegistrar implements org.wildfly.subsyst
     // This resource provides a capability whose service provides Foo.
     static final RuntimeCapability<Void> CAPABILITY = RuntimeCapability.Builder.of(NullaryServiceDescriptor.of("mycompany.foo", String.class)).build();
 
+    protected static final AttributeDefinition TICK =
+            new SimpleAttributeDefinitionBuilder("tick", ModelType.LONG)
+                    .setAllowExpression(true)
+                    .setFlags(AttributeAccess.Flag.RESTART_ALL_SERVICES)
+                    .setDefaultValue(new ModelNode(2))
+                    .setValidator(LongRangeValidator.POSITIVE)
+                    .setMeasurementUnit(MeasurementUnit.SECONDS)
+                    .setRequired(false)
+                    .build();
+
     @Override
     public ManagementResourceRegistration register(SubsystemRegistration parent, ManagementResourceRegistrationContext context) {
         ParentResourceDescriptionResolver resolver = new SubsystemResourceDescriptionResolver(REGISTRATION.getName(), SubsystemResourceDefinitionRegistrar.class);
 
         // Describe attribute and operations of resource
         ResourceDescriptor descriptor = ResourceDescriptor.builder(resolver)
-                .addAttributes(List.of())
+                .addAttributes(List.of(TICK))
 //                .addCapability(CAPABILITY)
                 // Specify runtime behaviour of resource
                 .withRuntimeHandler(ResourceOperationRuntimeHandler.configureService(this))
@@ -76,6 +93,8 @@ public class SubsystemResourceDefinitionRegistrar implements org.wildfly.subsyst
 
         LOGGER.activatingSubsystem();
 
+        long tick = TICK.resolveModelAttribute(context, model).asLong();
+        LOGGER.checkTick(tick);
         // Resolve service dependency from model
         //ServiceDependency<Bar> bar = BAR.resolve(context, model);
 

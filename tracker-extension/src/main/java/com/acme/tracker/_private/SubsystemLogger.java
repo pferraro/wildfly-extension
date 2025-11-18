@@ -20,4 +20,8 @@ public interface SubsystemLogger extends BasicLogger {
     @Message(id = 1, value = "Activating com.acme:tracker Subsystem")
     void activatingSubsystem();
 
+    @LogMessage(level = INFO)
+    @Message(id = 2, value = "Check the deployments every %s seconds")
+    void checkTick(long seconds);
+
 }

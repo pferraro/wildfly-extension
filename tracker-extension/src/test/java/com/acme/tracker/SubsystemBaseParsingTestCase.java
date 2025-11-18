@@ -44,7 +44,8 @@ public class SubsystemBaseParsingTestCase extends AbstractSubsystemSchemaTest<Su
         return switch (this.schema) {
             case VERSION_1_0 ->
                     """
-<subsystem xmlns="urn:com.acme:tracker:1.0" />""";
+<subsystem xmlns="urn:com.acme:tracker:1.0"
+    tick="4" />""";
 
             default ->
                     throw new IllegalArgumentException(this.schema.getNamespace().getUri());
