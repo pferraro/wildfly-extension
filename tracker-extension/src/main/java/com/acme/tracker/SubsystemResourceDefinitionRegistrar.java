@@ -9,8 +9,9 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import jakarta.enterprise.concurrent.ManagedExecutorService;
 import jakarta.enterprise.concurrent.ManagedScheduledExecutorService;
+
+import org.jboss.as.controller.AbstractRuntimeOnlyHandler;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
@@ -28,6 +29,8 @@ import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.as.server.DeploymentProcessorTarget;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.ModelType;
+import org.wildfly.common.function.ExceptionFunction;
+import org.wildfly.service.capture.FunctionExecutor;
 import org.wildfly.service.descriptor.NullaryServiceDescriptor;
 import org.wildfly.service.descriptor.UnaryServiceDescriptor;
 import org.wildfly.subsystem.resource.ManagementResourceRegistrar;
@@ -39,11 +42,11 @@ import org.wildfly.subsystem.resource.operation.ResourceOperationRuntimeHandler;
 import org.wildfly.subsystem.service.ResourceServiceConfigurator;
 import org.wildfly.subsystem.service.ResourceServiceInstaller;
 import org.wildfly.subsystem.service.ServiceDependency;
-import org.wildfly.subsystem.service.ServiceInstaller;
 
 import com.acme.tracker.deployment.SubsystemDeploymentProcessor;
 import org.wildfly.subsystem.service.capability.CapabilityServiceInstaller;
-import org.jboss.as.controller.OperationStepHandler;
+import org.wildfly.subsystem.service.capture.FunctionExecutorRegistry;
+import org.wildfly.subsystem.service.capture.ServiceValueExecutorRegistry;
 
 /**
  * Registers the resource definition of this subsystem.
@@ -53,7 +56,7 @@ public class SubsystemResourceDefinitionRegistrar implements org.wildfly.subsyst
 
     static final SubsystemResourceRegistration REGISTRATION = SubsystemResourceRegistration.of("tracker");
 
-    public static NullaryServiceDescriptor<TrackerService> SERVICE_DESCRIPTOR = NullaryServiceDescriptor.of("com.acme.tracker", TrackerService.class);
+    public static final NullaryServiceDescriptor<TrackerService> SERVICE_DESCRIPTOR = NullaryServiceDescriptor.of("com.acme.tracker", TrackerService.class);
     public static final RuntimeCapability<Void> TRACKER_CAPABILITY = RuntimeCapability.Builder.of(SERVICE_DESCRIPTOR).build();
 
     static final UnaryServiceDescriptor<ManagedScheduledExecutorService> EXECUTOR_SERVICE = UnaryServiceDescriptor.of("org.wildfly.ee.concurrent.scheduled-executor",
@@ -79,6 +82,9 @@ public class SubsystemResourceDefinitionRegistrar implements org.wildfly.subsyst
                     .setStorageRuntime()
                     .build();
 
+    private static final ExceptionFunction<TrackerService, Integer, RuntimeException> TRACKED_DEPLOYMENTS = service -> service.deployments.get();
+
+    final ServiceValueExecutorRegistry<TrackerService> registry = ServiceValueExecutorRegistry.newInstance();
 
     @Override
     public ManagementResourceRegistration register(SubsystemRegistration parent, ManagementResourceRegistrationContext context) {
@@ -100,21 +106,14 @@ public class SubsystemResourceDefinitionRegistrar implements org.wildfly.subsyst
         // Registers the attributes, operations, and capabilities of this resource based on our descriptor
         ManagementResourceRegistrar.of(descriptor).register(registration);
 
+        FunctionExecutorRegistry<TrackerService> executors = this.registry;
+
         // Register the DEPLOYMENTS attribute with a custom read handler
-        registration.registerReadOnlyAttribute(DEPLOYMENTS, new OperationStepHandler() {
+        registration.registerReadOnlyAttribute(DEPLOYMENTS, new AbstractRuntimeOnlyHandler() {
             @Override
-            public void execute(OperationContext context, ModelNode operation) throws OperationFailedException {
-                context.addStep((ctx, op) -> {
-                    TrackerService trackerService = ctx.getCapabilityRuntimeAPI(
-                            TRACKER_CAPABILITY.getName(),
-                            TrackerService.class
-                    );
-                    if (trackerService != null) {
-                        ctx.getResult().set(trackerService.deployments.get());
-                    } else {
-                        ctx.getResult().set(0L);
-                    }
-                }, OperationContext.Stage.RUNTIME);
+            protected void executeRuntimeStep(OperationContext context, ModelNode operation) {
+                FunctionExecutor<TrackerService> executor = executors.getExecutor(ServiceDependency.on(SERVICE_DESCRIPTOR));
+                context.getResult().set(executor != null ? executor.execute(TRACKED_DEPLOYMENTS).longValue() : 0L);
             }
         });
         return registration;
@@ -133,14 +132,13 @@ public class SubsystemResourceDefinitionRegistrar implements org.wildfly.subsyst
         long tick = TICK.resolveModelAttribute(context, model).asLong();
 
         ServiceDependency<ManagedScheduledExecutorService> executor = EXECUTOR.resolve(context, model);
-        Supplier<TrackerService> trackerService = () -> new TrackerService(executor.get(), tick);
+        Supplier<TrackerService> trackerServiceFactory = () -> new TrackerService(executor.get(), tick);
 
-        return CapabilityServiceInstaller.builder(TRACKER_CAPABILITY, trackerService)
-                .provides(TRACKER_CAPABILITY.getCapabilityServiceName())
+        return CapabilityServiceInstaller.builder(TRACKER_CAPABILITY, trackerServiceFactory)
                 .requires(executor)
                 .startWhen(AVAILABLE)
                 .onStop(TrackerService::stop)
+                .withCaptor(this.registry.add(ServiceDependency.on(SERVICE_DESCRIPTOR)))
                 .build();
     }
-
 }

@@ -1,23 +1,14 @@
 package com.acme.tracker.deployment;
 
 import com.acme.tracker.SubsystemResourceDefinitionRegistrar;
-import com.acme.tracker.TrackerService;
-import org.jboss.as.controller.RequirementServiceTarget;
-import org.jboss.as.server.deployment.Attachments;
 import org.jboss.as.server.deployment.DeploymentPhaseContext;
 import org.jboss.as.server.deployment.DeploymentUnit;
 import org.jboss.as.server.deployment.DeploymentUnitProcessingException;
 import org.jboss.as.server.deployment.DeploymentUnitProcessor;
 import org.jboss.as.server.deployment.Phase;
 import org.jboss.logging.Logger;
-import org.jboss.msc.Service;
-import org.jboss.msc.service.ServiceBuilder;
-import org.jboss.msc.service.ServiceName;
-import org.jboss.msc.service.StartContext;
-import org.jboss.msc.service.StopContext;
-
-import java.util.function.Consumer;
-import java.util.function.Supplier;
+import org.wildfly.subsystem.service.ServiceDependency;
+import org.wildfly.subsystem.service.ServiceInstaller;
 
 /**
  * An example deployment unit processor that does nothing. To add more deployment
@@ -48,41 +39,16 @@ public class SubsystemDeploymentProcessor implements DeploymentUnitProcessor {
         this.logger.infof("Deploying %s", deploymentUnit.getName());
 
         // Install a service that depends on the TrackerService
-        ServiceName deploymentServiceName = deploymentUnit.getServiceName().append("tracker-deployment");
-        ServiceBuilder<?> serviceBuilder = phaseContext.getRequirementServiceTarget().addService(deploymentServiceName);
-        Supplier<TrackerService> trackerServiceSupplier = serviceBuilder.requires(SubsystemResourceDefinitionRegistrar.TRACKER_CAPABILITY.getCapabilityServiceName());
-
-        serviceBuilder.setInstance(new DeploymentTrackerService(trackerServiceSupplier, deploymentUnit.getName()));
-        serviceBuilder.install();
+        ServiceInstaller.builder(ServiceDependency.on(SubsystemResourceDefinitionRegistrar.SERVICE_DESCRIPTOR))
+            .onStart(service -> service.deployments.incrementAndGet())
+            .onStop(service -> service.deployments.decrementAndGet())
+            .build()
+            .install(phaseContext);
     }
 
     @Override
     public void undeploy(DeploymentUnit unit) {
         this.logger.infof("Undeploying %s", unit.getName());
         // The service will be stopped automatically
-    }
-
-    private static class DeploymentTrackerService implements Service {
-        private final Supplier<TrackerService> trackerServiceSupplier;
-        private TrackerService trackerService;
-
-        DeploymentTrackerService(Supplier<TrackerService> trackerServiceSupplier, String deploymentName) {
-            this.trackerServiceSupplier = trackerServiceSupplier;
-        }
-
-        @Override
-        public void start(StartContext context) {
-            trackerService = trackerServiceSupplier.get();
-            if (trackerService != null) {
-                trackerService.deployments.incrementAndGet();
-            }
-        }
-
-        @Override
-        public void stop(StopContext context) {
-            if (trackerService != null) {
-                trackerService.deployments.decrementAndGet();
-            }
-        }
     }
 }
