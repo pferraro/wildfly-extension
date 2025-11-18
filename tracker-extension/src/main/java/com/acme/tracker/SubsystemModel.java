@@ -1,4 +1,4 @@
-package com.acme;
+package com.acme.tracker;
 
 import org.jboss.as.controller.ModelVersion;
 

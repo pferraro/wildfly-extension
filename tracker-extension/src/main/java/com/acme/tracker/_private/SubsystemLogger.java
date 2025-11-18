@@ -1,4 +1,4 @@
-package com.acme._private;
+package com.acme.tracker._private;
 
 import static org.jboss.logging.Logger.Level.INFO;
 

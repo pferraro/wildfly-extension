@@ -1,6 +1,6 @@
-package com.acme;
+package com.acme.tracker;
 
-import static com.acme._private.SubsystemLogger.LOGGER;
+import static com.acme.tracker._private.SubsystemLogger.LOGGER;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -22,15 +22,12 @@ import org.wildfly.service.descriptor.NullaryServiceDescriptor;
 import org.wildfly.subsystem.resource.ManagementResourceRegistrar;
 import org.wildfly.subsystem.resource.ManagementResourceRegistrationContext;
 import org.wildfly.subsystem.resource.ResourceDescriptor;
-import org.wildfly.subsystem.resource.capability.CapabilityReference;
-import org.wildfly.subsystem.resource.capability.CapabilityReferenceAttributeDefinition;
 import org.wildfly.subsystem.resource.operation.ResourceOperationRuntimeHandler;
 import org.wildfly.subsystem.service.ResourceServiceConfigurator;
 import org.wildfly.subsystem.service.ResourceServiceInstaller;
-import org.wildfly.subsystem.service.ServiceDependency;
 import org.wildfly.subsystem.service.capability.CapabilityServiceInstaller;
 
-import com.acme.deployment.SubsystemDeploymentProcessor;
+import com.acme.tracker.deployment.SubsystemDeploymentProcessor;
 
 /**
  * Registers the resource definition of this subsystem.

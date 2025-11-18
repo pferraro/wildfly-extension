@@ -1,4 +1,4 @@
-package com.acme;
+package com.acme.tracker;
 
 import org.jboss.as.subsystem.test.AbstractSubsystemSchemaTest;
 import org.junit.runner.RunWith;
@@ -25,7 +25,7 @@ public class SubsystemBaseParsingTestCase extends AbstractSubsystemSchemaTest<Su
     private final SubsystemSchema schema;
 
     public SubsystemBaseParsingTestCase(SubsystemSchema schema) {
-        super(SubsystemResourceDefinitionRegistrar.REGISTRATION.getName(), new TrackerExtension(), schema, SubsystemSchema.CURRENT);
+        super(SubsystemResourceDefinitionRegistrar.REGISTRATION.getName(), new Extension(), schema, SubsystemSchema.CURRENT);
         this.schema = schema;
     }
 

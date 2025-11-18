@@ -1,4 +1,4 @@
-package com.acme.deployment;
+package com.acme.tracker.deployment;
 
 import org.jboss.as.server.deployment.DeploymentPhaseContext;
 import org.jboss.as.server.deployment.DeploymentUnit;

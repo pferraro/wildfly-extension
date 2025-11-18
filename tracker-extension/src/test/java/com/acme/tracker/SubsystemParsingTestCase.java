@@ -1,4 +1,4 @@
-package com.acme;
+package com.acme.tracker;
 
 
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.ADD;
@@ -31,7 +31,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
     private final AdditionalInitialization initialization = AdditionalInitialization.withCapabilities();
 
     public SubsystemParsingTestCase() {
-        super(SubsystemResourceDefinitionRegistrar.REGISTRATION.getName(), new TrackerExtension());
+        super(SubsystemResourceDefinitionRegistrar.REGISTRATION.getName(), new Extension());
     }
 
     /**

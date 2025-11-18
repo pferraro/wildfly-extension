@@ -99,6 +99,7 @@
                         </goals>
                         <phase>prepare-package</phase>
                         <configuration>
+                            <fork-embedded>false</fork-embedded>
                             <release-name>acme-feature-pack</release-name>
                         </configuration>
                     </execution>
