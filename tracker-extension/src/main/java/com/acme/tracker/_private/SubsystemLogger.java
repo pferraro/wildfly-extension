@@ -24,4 +24,7 @@ public interface SubsystemLogger extends BasicLogger {
     @Message(id = 2, value = "Check the deployments every %s seconds")
     void checkTick(long seconds);
 
+    @LogMessage(level = INFO)
+    @Message(id = 3, value = "There are %s deployments in the server")
+    void numberOfDeployments(int i);
 }

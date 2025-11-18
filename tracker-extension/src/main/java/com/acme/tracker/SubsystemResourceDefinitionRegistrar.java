@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import jakarta.enterprise.concurrent.ManagedExecutorService;
+import jakarta.enterprise.concurrent.ManagedScheduledExecutorService;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
@@ -49,10 +50,10 @@ public class SubsystemResourceDefinitionRegistrar implements org.wildfly.subsyst
 
     static final RuntimeCapability<Void> TRACKER_CAPABILITY = RuntimeCapability.Builder.of("com.acme.tracker").build();
 
-    static final UnaryServiceDescriptor<ManagedExecutorService> EXECUTOR_SERVICE = UnaryServiceDescriptor.of("org.wildfly.ee.concurrent.executor",
-    ManagedExecutorService.class);
+    static final UnaryServiceDescriptor<ManagedScheduledExecutorService> EXECUTOR_SERVICE = UnaryServiceDescriptor.of("org.wildfly.ee.concurrent.scheduled-executor",
+            ManagedScheduledExecutorService.class);
 
-    static final CapabilityReferenceAttributeDefinition<ManagedExecutorService> EXECUTOR = new CapabilityReferenceAttributeDefinition.Builder<>("executor", CapabilityReference.builder(TRACKER_CAPABILITY, EXECUTOR_SERVICE).build())
+    static final CapabilityReferenceAttributeDefinition<ManagedScheduledExecutorService> EXECUTOR = new CapabilityReferenceAttributeDefinition.Builder<>("executor", CapabilityReference.builder(TRACKER_CAPABILITY, EXECUTOR_SERVICE).build())
             .build();
 
     protected static final AttributeDefinition TICK =
@@ -99,14 +100,14 @@ public class SubsystemResourceDefinitionRegistrar implements org.wildfly.subsyst
         LOGGER.activatingSubsystem();
 
         long tick = TICK.resolveModelAttribute(context, model).asLong();
-        LOGGER.checkTick(tick);
 
-        ServiceDependency<ManagedExecutorService> executor = EXECUTOR.resolve(context, model);
-        Supplier<TrackerService> factory = () -> new TrackerService(executor.get(), tick);
+        ServiceDependency<ManagedScheduledExecutorService> executor = EXECUTOR.resolve(context, model);
+        Supplier<TrackerService> trackerService = () -> new TrackerService(executor.get(), tick);
 
-        return ServiceInstaller.builder(factory)
+        return ServiceInstaller.builder(trackerService)
                 .requires(executor)
                 .startWhen(AVAILABLE)
+                .onStop(TrackerService::stop)
                 .build();
     }
 

@@ -2,9 +2,12 @@ package com.acme.tracker;
 
 import static com.acme.tracker._private.SubsystemLogger.LOGGER;
 
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import jakarta.enterprise.concurrent.ManagedExecutorService;
+import jakarta.enterprise.concurrent.ManagedScheduledExecutorService;
 import org.jboss.msc.Service;
 import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StopContext;
@@ -13,26 +16,22 @@ import org.jboss.msc.service.StopContext;
  * Service that tracks deployments using a ManagedExecutorService.
  * @author WildFly Extension
  */
-public class TrackerService implements Service {
+public class TrackerService  {
 
-    private final ManagedExecutorService executor;
-    private final long tick;
+    private final ScheduledFuture<?> future;
 
-    public TrackerService(ManagedExecutorService executor, long tick) {
-        System.out.println("TrackerService.TrackerService");
-        this.executor = executor;
-        this.tick = tick;
+    public TrackerService(ManagedScheduledExecutorService executor, long tick) {
+        LOGGER.checkTick(tick);
+        future = executor.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                LOGGER.numberOfDeployments(0);
+            }
+        }, tick, tick, TimeUnit.SECONDS);
     }
 
-    @Override
-    public void start(StartContext context) {
-        LOGGER.infof("Starting TrackerService with tick interval of %d seconds", tick);
-        // TODO: Implement tracking logic using the executor and tick interval
-    }
 
-    @Override
-    public void stop(StopContext context) {
-        LOGGER.infof("Stopping TrackerService");
-        // TODO: Implement cleanup logic
+    public void stop() {
+        future.cancel(true);
     }
 }
