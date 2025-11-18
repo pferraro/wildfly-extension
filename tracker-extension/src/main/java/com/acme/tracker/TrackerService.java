@@ -14,22 +14,18 @@ import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StopContext;
 
 /**
- * Service that tracks deployments using a ManagedExecutorService.
- * @author WildFly Extension
+ * Service that tracks the number of deployments
  */
 public class TrackerService  {
 
     private final ScheduledFuture<?> future;
 
-    public final AtomicInteger DEPLOYMENTS = new AtomicInteger(0);
+    public final AtomicInteger deployments = new AtomicInteger(0);
 
     public TrackerService(ManagedScheduledExecutorService executor, long tick) {
         LOGGER.checkTick(tick);
-        future = executor.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                LOGGER.numberOfDeployments(DEPLOYMENTS.get());
-            }
+        future = executor.scheduleAtFixedRate(() -> {
+            LOGGER.numberOfDeployments(deployments.get());
         }, tick, tick, TimeUnit.SECONDS);
     }
 

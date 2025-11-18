@@ -1,6 +1,8 @@
 package com.acme.tracker;
 
 import static com.acme.tracker._private.SubsystemLogger.LOGGER;
+import static com.acme.tracker.deployment.SubsystemDeploymentProcessor.PHASE;
+import static com.acme.tracker.deployment.SubsystemDeploymentProcessor.PRIORITY;
 import static org.wildfly.service.Installer.StartWhen.AVAILABLE;
 
 import java.util.List;
@@ -103,12 +105,12 @@ public class SubsystemResourceDefinitionRegistrar implements org.wildfly.subsyst
             @Override
             public void execute(OperationContext context, ModelNode operation) throws OperationFailedException {
                 context.addStep((ctx, op) -> {
-                    TrackerService service = ctx.getCapabilityRuntimeAPI(
+                    TrackerService trackerService = ctx.getCapabilityRuntimeAPI(
                             TRACKER_CAPABILITY.getName(),
                             TrackerService.class
                     );
-                    if (service != null) {
-                        ctx.getResult().set(service.DEPLOYMENTS.get());
+                    if (trackerService != null) {
+                        ctx.getResult().set(trackerService.deployments.get());
                     } else {
                         ctx.getResult().set(0L);
                     }
@@ -120,7 +122,7 @@ public class SubsystemResourceDefinitionRegistrar implements org.wildfly.subsyst
 
     @Override
     public void accept(DeploymentProcessorTarget target) {
-        target.addDeploymentProcessor(REGISTRATION.getName(), SubsystemDeploymentProcessor.PHASE, SubsystemDeploymentProcessor.PRIORITY, SubsystemDeploymentProcessor.INSTANCE);
+        target.addDeploymentProcessor(REGISTRATION.getName(), PHASE, PRIORITY, new SubsystemDeploymentProcessor());
     }
 
     @Override

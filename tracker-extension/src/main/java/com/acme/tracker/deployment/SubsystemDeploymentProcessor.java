@@ -26,8 +26,7 @@ import java.util.function.Supplier;
  *
  * @author <a href="kabir.khan@jboss.com">Kabir Khan</a>
  */
-public enum SubsystemDeploymentProcessor implements DeploymentUnitProcessor {
-    INSTANCE;
+public class SubsystemDeploymentProcessor implements DeploymentUnitProcessor {
 
     private final Logger logger = Logger.getLogger(SubsystemDeploymentProcessor.class);
 
@@ -75,14 +74,14 @@ public enum SubsystemDeploymentProcessor implements DeploymentUnitProcessor {
         public void start(StartContext context) {
             trackerService = trackerServiceSupplier.get();
             if (trackerService != null) {
-                trackerService.DEPLOYMENTS.incrementAndGet();
+                trackerService.deployments.incrementAndGet();
             }
         }
 
         @Override
         public void stop(StopContext context) {
             if (trackerService != null) {
-                trackerService.DEPLOYMENTS.decrementAndGet();
+                trackerService.deployments.decrementAndGet();
             }
         }
     }
