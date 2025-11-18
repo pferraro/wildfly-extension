@@ -17,6 +17,19 @@
         <version.wildfly.galleon.plugins>8.0.2.Final</version.wildfly.galleon.plugins>
         <version.wildfly.common>2.0.1</version.wildfly.common>
         <version.wildfly.core>30.0.0.Final</version.wildfly.core>
+
+
+
+        <!--Stay with JUnit 4, as "org.wildfly.core:wildfly-subsystem-test-framework" does not support JUnit 5-->
+        <version.junit>4.13.2</version.junit>
+
+        <!-- other plugin versions -->
+        <version.compiler.plugin>3.14.1</version.compiler.plugin>
+        <version.surefire.plugin>3.5.4</version.surefire.plugin>
+        <version.antrun.plugin>3.2.0</version.antrun.plugin>
+
+        <!-- maven-compiler-plugin -->
+        <maven.compiler.release>17</maven.compiler.release>
     </properties>
 
     <modules>

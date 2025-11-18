@@ -15,24 +15,6 @@
 
     <description>This is your WildFly subsystem</description>
 
-
-    <properties>
-        <version.wildfly.core>30.0.0.Final</version.wildfly.core>
-        <!--Stay with JUnit 4, as "org.wildfly.core:wildfly-subsystem-test-framework" does not support JUnit 5-->
-        <version.junit>4.13.2</version.junit>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <module.name>com.acme.corp.tracker</module.name>
-
-
-        <!-- other plugin versions -->
-        <version.compiler.plugin>3.14.1</version.compiler.plugin>
-        <version.surefire.plugin>3.5.4</version.surefire.plugin>
-        <version.antrun.plugin>3.2.0</version.antrun.plugin>
-
-        <!-- maven-compiler-plugin -->
-        <maven.compiler.release>17</maven.compiler.release>
-    </properties>
-
     <build>
         <!-- Maven will append the version to the finalName (which is the name
            given to the generated war, and hence the context root) -->

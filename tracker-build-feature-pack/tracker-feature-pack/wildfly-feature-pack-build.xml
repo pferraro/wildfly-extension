@@ -16,13 +16,13 @@
         <package name="modules.all"/>
     </default-packages>
     <package-schemas>
-        <group name="com.acme.corp.tracker"/>
+        <group name="com.acme.tracker"/>
     </package-schemas>
 
     <generate-feature-specs>
         <extensions>
             <standalone>
-                <extension>com.acme.corp.tracker</extension>
+                <extension>com.acme.tracker</extension>
             </standalone>
         </extensions>
     </generate-feature-specs>
