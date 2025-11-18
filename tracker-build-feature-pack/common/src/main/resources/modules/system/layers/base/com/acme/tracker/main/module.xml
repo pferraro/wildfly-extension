@@ -15,5 +15,8 @@
         <module name="org.jboss.vfs"/>
         <module name="org.wildfly.service"/>
         <module name="org.wildfly.subsystem"/>
+
+        <!-- required to access the Jakarta EE concurrent API -->
+        <module name="jakarta.enterprise.concurrent.api" />
     </dependencies>
 </module>

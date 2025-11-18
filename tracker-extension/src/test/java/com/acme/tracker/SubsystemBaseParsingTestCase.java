@@ -1,6 +1,8 @@
 package com.acme.tracker;
 
+import org.jboss.as.controller.capability.RuntimeCapability;
 import org.jboss.as.subsystem.test.AbstractSubsystemSchemaTest;
+import org.jboss.as.subsystem.test.AdditionalInitialization;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
@@ -34,10 +36,11 @@ public class SubsystemBaseParsingTestCase extends AbstractSubsystemSchemaTest<Su
         return "schema/%1$s_%2$d_%3$d.xsd";
     }
 
-    //@Override
-    //protected AdditionalInitialization createAdditionalInitialization() {
-        //return AdditionalInitialization.withCapabilities(RuntimeCapability.resolveCapabilityName(Bar.SERVICE_DESCRIPTOR, "test"));
-    //}
+    @Override
+    protected AdditionalInitialization createAdditionalInitialization() {
+        return AdditionalInitialization.withCapabilities(
+                RuntimeCapability.resolveCapabilityName(SubsystemResourceDefinitionRegistrar.EXECUTOR_SERVICE, "default"));
+    }
 
     @Override
     protected String getSubsystemXml() throws IOException {
@@ -45,7 +48,8 @@ public class SubsystemBaseParsingTestCase extends AbstractSubsystemSchemaTest<Su
             case VERSION_1_0 ->
                     """
 <subsystem xmlns="urn:com.acme:tracker:1.0"
-    tick="4" />""";
+    tick="4"
+    executor="default" />""";
 
             default ->
                     throw new IllegalArgumentException(this.schema.getNamespace().getUri());

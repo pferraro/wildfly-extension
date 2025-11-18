@@ -1,5 +1,6 @@
 package com.acme.tracker;
 
+import static com.acme.tracker.SubsystemResourceDefinitionRegistrar.EXECUTOR;
 import static com.acme.tracker.SubsystemResourceDefinitionRegistrar.TICK;
 
 import java.util.List;
@@ -35,7 +36,7 @@ public enum SubsystemSchema implements SubsystemResourceXMLSchema<SubsystemSchem
     @Override
     public SubsystemResourceRegistrationXMLElement getSubsystemXMLElement() {
         return this.factory.subsystemElement(SubsystemResourceDefinitionRegistrar.REGISTRATION)
-                .addAttributes(List.of(TICK))
+                .addAttributes(List.of(TICK, EXECUTOR))
                 .build();
     }
 }
