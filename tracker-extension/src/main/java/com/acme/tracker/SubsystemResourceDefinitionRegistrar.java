@@ -41,6 +41,7 @@ import org.wildfly.subsystem.service.ServiceInstaller;
 
 import com.acme.tracker.deployment.SubsystemDeploymentProcessor;
 import org.wildfly.subsystem.service.capability.CapabilityServiceInstaller;
+import org.jboss.as.controller.OperationStepHandler;
 
 /**
  * Registers the resource definition of this subsystem.
@@ -69,6 +70,14 @@ public class SubsystemResourceDefinitionRegistrar implements org.wildfly.subsyst
                     .setRequired(false)
                     .build();
 
+    protected static final AttributeDefinition DEPLOYMENTS =
+            new SimpleAttributeDefinitionBuilder("deployments", ModelType.LONG)
+                    .setFlags(AttributeAccess.Flag.RESTART_ALL_SERVICES)
+                    .setRequired(false)
+                    .setStorageRuntime()
+                    .build();
+
+
     @Override
     public ManagementResourceRegistration register(SubsystemRegistration parent, ManagementResourceRegistrationContext context) {
         ParentResourceDescriptionResolver resolver = new SubsystemResourceDescriptionResolver(REGISTRATION.getName(), SubsystemResourceDefinitionRegistrar.class);
@@ -89,6 +98,23 @@ public class SubsystemResourceDefinitionRegistrar implements org.wildfly.subsyst
         // Registers the attributes, operations, and capabilities of this resource based on our descriptor
         ManagementResourceRegistrar.of(descriptor).register(registration);
 
+        // Register the DEPLOYMENTS attribute with a custom read handler
+        registration.registerReadOnlyAttribute(DEPLOYMENTS, new OperationStepHandler() {
+            @Override
+            public void execute(OperationContext context, ModelNode operation) throws OperationFailedException {
+                context.addStep((ctx, op) -> {
+                    TrackerService service = ctx.getCapabilityRuntimeAPI(
+                            TRACKER_CAPABILITY.getName(),
+                            TrackerService.class
+                    );
+                    if (service != null) {
+                        ctx.getResult().set(service.DEPLOYMENTS.get());
+                    } else {
+                        ctx.getResult().set(0L);
+                    }
+                }, OperationContext.Stage.RUNTIME);
+            }
+        });
         return registration;
     }
 
@@ -108,6 +134,7 @@ public class SubsystemResourceDefinitionRegistrar implements org.wildfly.subsyst
         Supplier<TrackerService> trackerService = () -> new TrackerService(executor.get(), tick);
 
         return CapabilityServiceInstaller.builder(TRACKER_CAPABILITY, trackerService)
+                .provides(TRACKER_CAPABILITY.getCapabilityServiceName())
                 .requires(executor)
                 .startWhen(AVAILABLE)
                 .onStop(TrackerService::stop)
