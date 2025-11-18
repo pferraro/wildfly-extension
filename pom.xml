@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.acme</groupId>
+    <artifactId>acme-parent</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>Acme Build Feature Pack Parent</name>
+    <description>Parent POM for building the Acme Galleon feature pack</description>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <version.wildfly>38.0.0.Final</version.wildfly>
+        <version.wildfly.galleon.plugins>8.0.2.Final</version.wildfly.galleon.plugins>
+        <version.wildfly.common>2.0.1</version.wildfly.common>
+        <version.wildfly.core>30.0.0.Final</version.wildfly.core>
+    </properties>
+
+    <modules>
+        <module>acme-subsystem</module>
+        <module>acme-build-feature-pack</module>
+        <module>testsuite</module>
+    </modules>
+
+    <repositories>
+        <repository>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+            </snapshots>
+            <id>jboss-public-repository-group</id>
+            <name>JBoss Public Repository Group</name>
+            <url>https://repository.jboss.org/nexus/repository/public/</url>
+            <layout>default</layout>
+        </repository>
+    </repositories>
+</project>

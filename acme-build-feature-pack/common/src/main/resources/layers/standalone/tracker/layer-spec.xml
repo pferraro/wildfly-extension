@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layer-spec xmlns="urn:jboss:galleon:layer-spec:2.0" name="tracker">
+    <feature-group name="tracker" />
+</layer-spec>

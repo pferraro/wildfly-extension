@@ -1,0 +1,29 @@
+
+<build xmlns="urn:wildfly:feature-pack-build:3.1" producer="com.acme:acme-feature-pack">
+    <dependencies>
+        <dependency group-id="org.wildfly" artifact-id="wildfly-ee-galleon-pack">
+            <name>org.wildfly:wildfly-ee-galleon-pack</name>
+            <packages inherit="true"/>
+            <default-configs inherit="false"/>
+        </dependency>
+        <dependency group-id="org.wildfly" artifact-id="wildfly-galleon-pack">
+            <name>org.wildfly:wildfly-galleon-pack</name>
+            <packages inherit="true"/>
+            <default-configs inherit="false"/>
+        </dependency>
+    </dependencies>
+    <default-packages>
+        <package name="modules.all"/>
+    </default-packages>
+    <package-schemas>
+        <group name="com.acme.corp.tracker"/>
+    </package-schemas>
+
+    <generate-feature-specs>
+        <extensions>
+            <standalone>
+                <extension>com.acme.corp.tracker</extension>
+            </standalone>
+        </extensions>
+    </generate-feature-specs>
+</build>
